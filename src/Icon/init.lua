@@ -648,6 +648,50 @@ function Icon:setBehaviour(collectiveOrInstanceName, property, callback, refresh
 	end
 end
 
+function Icon:convertLabelToNumberSpinner(numberSpinner)
+	local label = self:getInstance("IconLabel")
+	label.Transparency = 1
+	numberSpinner.Parent = label
+
+	local propertiesToChange = {
+		"FontFace",
+		"BorderSizePixel",
+		"Position",
+		"BorderColor3",
+		"Rotation",
+		"TextScaled",
+		"TextStrokeTransparency",
+		"TextStrokeColor3",
+		"TextStrokeTransparency",
+		"TextYAlignment",
+		"Size",
+		"TextSize",
+		"TextXAlignment",
+		"TextColor3",
+		"AnchorPoint",
+	}
+	for i, property in propertiesToChange do
+		numberSpinner[property] = label[property]
+	end
+
+	local invalidProperties = {
+		"TextBounds",
+		"TextFits",
+		"AbsolutePosition",
+		"AbsoluteSize",
+		"OpenTypeFeaturesError",
+	}
+	self:addToJanitor(label.Changed:Connect(function(property)
+		if table.find(invalidProperties, property) then
+			return
+		end
+		numberSpinner[property] = label[property]
+	end))
+
+	self:updateParent()
+	return self
+end
+
 function Icon:modifyTheme(modifications, modificationUID)
 	local modificationUID = Themes.modify(self, modifications, modificationUID)
 	return self, modificationUID
